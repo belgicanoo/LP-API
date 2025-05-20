@@ -1,0 +1,4 @@
+base_url = 'https://api.spoonacular.com/recipes/complexSearch'
+ingredients_url = 'https://api.spoonacular.com/recipes/findByIngredients'
+recipe_info_url = 'https://api.spoonacular.com/recipes/{}/information'
+api_key = 'cc45df8db647453f8c0d2f5e7df3667f'
