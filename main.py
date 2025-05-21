@@ -30,7 +30,7 @@ def index():
     decoded_search_query = unquote(search_query)
     # Perform a search for recipes with the decoded search query
     recipes = search_recipes(decoded_search_query)
-    # Render the main page
+    # Render the main page0
     return render_template('index.html', recipes=recipes, search_query=decoded_search_query)
 
 # Function to search for recipes based on the provided query
@@ -47,7 +47,7 @@ def search_recipes(query):
 
     # Send a GET request to the Spoonacular API with the query parameters
     response = requests.get(url, params=params)
-    # If the API call is successful
+    # If the API call is successful 
     if response.status_code == 200:
         # Parse the API response as JSON data
         data = response.json()
