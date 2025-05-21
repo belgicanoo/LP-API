@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{ recipe.title }}</title>
+</head>
+<body>
+    <div class="recipe_details">
+        <h1>{{ recipe.title }}</h1>
+
+        <!-- Display the recipe image if available-->
+         {% if recipe.image %}
+         <img src="{{ recipe.imgage}}" alt="{{recipe.title}}" class="">
+         {% endif %}
+
+         <!-- Ingredient section -->
+          <h2 class="section-title">Ingredients</h2>
+          <!--Create an unordered list for displaying the ingredients-->
+          <ul class="ingredient-list">
+            <!-- Loop through each ingredient in the recipe's extendedIngredients -->
+             {%for ingredient in recipe.extendedIngredients %}
+          <li>{{ ingredient.original }}</li>
+          {% endfor %}
+          </ul>
+<!-- Instruction section-->
+ <h2 class="section-title">Instructions</h2>
+ <ol class="instruction-list">
+    {% for step in recipe.analyzedInstructions[0].steps %}
+    <li>{{ step.step }}</li>
+    {% endfor %}
+ </ol>
+ <a href="/?search_query={{ search_query}}">Back to search results</a>
+    </div>
+</body>
+</html>
