@@ -66,6 +66,47 @@ def view_recipe(recipe_id):
     params = {
         'apiKey': API_KEY,
     }
+def generate_meal_plan(liked, disliked):
+    url = f'https://api.spoonacular.com/mealplanner/generate'
+    params = {
+        'apiKey': API_KEY,
+        'timeFrame': 'day',
+        'diet': '',
+        'exclude': disliked,
+    }
+
+    response = requests.get(url, params=params)
+    if response.status_code != 200:
+        return None, []
+
+    plan = response.json()
+    recipes_details = []
+
+    for meal in plan.get('meals', []):
+        recipe_id = meal['id']
+        recipe_info = requests.get(f'https://api.spoonacular.com/recipes/{recipe_id}/information', params={'apiKey': API_KEY})
+        if recipe_info.status_code == 200:
+            recipe_data = recipe_info.json()
+            # Filtrar por ingredientes preferidos
+            if liked:
+                if any(ingredient.lower() in liked.lower() for ingredient in [i['name'] for i in recipe_data.get('extendedIngredients', [])]):
+                    recipes_details.append(recipe_data)
+            else:
+                recipes_details.append(recipe_data)
+
+    return plan, recipes_details
+
+def create_shopping_list(recipes):
+    shopping_items = {}
+    for recipe in recipes:
+        for ing in recipe.get('extendedIngredients', []):
+            name = ing['name'].capitalize()
+            amount = f"{ing['amount']} {ing['unit']}".strip()
+            if name in shopping_items:
+                shopping_items[name].append(amount)
+            else:
+                shopping_items[name] = [amount]
+    return shopping_items
 
     # Send a GET request to the Spoonacular API to get the recipe information
     response = requests.get(url, params=params)
@@ -74,6 +115,28 @@ def view_recipe(recipe_id):
         recipe = response.json()
         return render_template('view_recipe.html', recipe=recipe, search_query=search_query)
     return "Recipe not found", 404
+@app.route('/meal-plan', methods=['GET', 'POST'])
+def meal_plan():
+    if request.method == 'POST':
+        liked_ingredients = request.form.get('liked_ingredients', '')
+        disliked_ingredients = request.form.get('disliked_ingredients', '')
+        
+        # Buscar plano alimentar com base nos ingredientes preferidos e evitados
+        plan_data, recipes_details = generate_meal_plan(liked_ingredients, disliked_ingredients)
+
+        # Criar lista de compras
+        shopping_list = create_shopping_list(recipes_details)
+
+        return render_template(
+            'meal_plan.html',
+            plan=plan_data,
+            recipes=recipes_details,
+            liked_ingredients=liked_ingredients,
+            disliked_ingredients=disliked_ingredients,
+            shopping_list=shopping_list
+        )
+
+    return render_template('meal_plan_form.html')
 
 # Run the app in debug mode if executed directly
 if __name__ == '__main__':
