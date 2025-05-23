@@ -1,41 +1,37 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import requests
 from urllib.parse import unquote
 
-# Create the flask app
 app = Flask(__name__)
 
-# Replace with your Spoonacular API key
 API_KEY = '102e440d05e14a75b434d6de15670598'
 
-# Define the route for the "Home" button
 @app.route('/home', methods=['GET'])
 def home():
-    # Render the main page with empty recipe list and search query
     return render_template('index.html', recipes=[], search_query='')
 
-# Define the main route for the app
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        # If a form is submitted
+        action = request.form.get('action')
         query = request.form.get('search_query', '')
-        # Perform a search for recipes with the given query
-        recipes = search_recipes(query)
-        # Render the main page with the search results and the search query
-        return render_template('index.html', recipes=recipes, search_query=query)
-    
-    # If it's a GET request or no form submitted
+        liked = request.form.get('liked_ingredients', '')
+        disliked = request.form.get('disliked_ingredients', '')
+
+        if action == 'Buscar Receitas':
+            recipes = search_recipes(query)
+            return render_template('index.html', recipes=recipes, search_query=query)
+
+        elif action == 'Gerar Plano Alimentar':
+            return redirect(url_for('meal_plan_route', liked=liked, disliked=disliked))
+
     search_query = request.args.get('search_query', '')
     decoded_search_query = unquote(search_query)
-    # Perform a search for recipes with the decoded search query
     recipes = search_recipes(decoded_search_query)
-    # Render the main page0
     return render_template('index.html', recipes=recipes, search_query=decoded_search_query)
 
-# Function to search for recipes based on the provided query
 def search_recipes(query):
-    url = f'https://api.spoonacular.com/recipes/complexSearch'
+    url = 'https://api.spoonacular.com/recipes/complexSearch'
     params = {
         'apiKey': API_KEY,
         'query': query,
@@ -44,102 +40,61 @@ def search_recipes(query):
         'addRecipeInformation': True,
         'fillIngredients': True,
     }
-
-    # Send a GET request to the Spoonacular API with the query parameters
     response = requests.get(url, params=params)
-    # If the API call is successful 
-    if response.status_code == 200:
-        # Parse the API response as JSON data
-        data = response.json()
-        # Return the list of recipe results
-        return data['results']
-    # If the API call is not successful
-    return []
+    return response.json().get('results', []) if response.status_code == 200 else []
 
-# Route to view a specific recipe with a given recipe ID
-@app.route('/recipe/<int:recipe_id>')
-def view_recipe(recipe_id):
-    # Get the search query from the URL query parameters
-    search_query = request.args.get('search_query', '')
-    # Build the URL to get information about the specific recipe ID from Spoonacular API
-    url = f'https://api.spoonacular.com/recipes/{recipe_id}/information'
-    params = {
-        'apiKey': API_KEY,
-    }
-def generate_meal_plan(liked, disliked):
-    url = f'https://api.spoonacular.com/mealplanner/generate'
+@app.route('/meal-plan')
+def meal_plan_route():
+    liked = request.args.get('liked', '')
+    disliked = request.args.get('disliked', '')
+
+    url = 'https://api.spoonacular.com/mealplanner/generate'
     params = {
         'apiKey': API_KEY,
         'timeFrame': 'day',
-        'diet': '',
-        'exclude': disliked,
+        'includeIngredients': liked,
+        'excludeIngredients': disliked
     }
 
     response = requests.get(url, params=params)
     if response.status_code != 200:
-        return None, []
+        return "Erro ao gerar plano alimentar", 500
 
     plan = response.json()
-    recipes_details = []
+    recipe_ids = [str(meal['id']) for meal in plan['meals']]
 
-    for meal in plan.get('meals', []):
-        recipe_id = meal['id']
-        recipe_info = requests.get(f'https://api.spoonacular.com/recipes/{recipe_id}/information', params={'apiKey': API_KEY})
-        if recipe_info.status_code == 200:
-            recipe_data = recipe_info.json()
-            # Filtrar por ingredientes preferidos
-            if liked:
-                if any(ingredient.lower() in liked.lower() for ingredient in [i['name'] for i in recipe_data.get('extendedIngredients', [])]):
-                    recipes_details.append(recipe_data)
-            else:
-                recipes_details.append(recipe_data)
+    detailed_recipes = []
+    shopping_list = {}
 
-    return plan, recipes_details
+    for recipe_id in recipe_ids:
+        detail_url = f'https://api.spoonacular.com/recipes/{recipe_id}/information'
+        detail_res = requests.get(detail_url, params={'apiKey': API_KEY})
+        if detail_res.status_code == 200:
+            recipe = detail_res.json()
+            detailed_recipes.append(recipe)
+            for ing in recipe.get('extendedIngredients', []):
+                name = ing['name']
+                amount = f"{ing['amount']} {ing['unit']}".strip()
+                shopping_list.setdefault(name, []).append(amount)
 
-def create_shopping_list(recipes):
-    shopping_items = {}
-    for recipe in recipes:
-        for ing in recipe.get('extendedIngredients', []):
-            name = ing['name'].capitalize()
-            amount = f"{ing['amount']} {ing['unit']}".strip()
-            if name in shopping_items:
-                shopping_items[name].append(amount)
-            else:
-                shopping_items[name] = [amount]
-    return shopping_items
+    return render_template('view_recipe.html',
+                           recipe=detailed_recipes[0],
+                           plan=plan,
+                           recipes=detailed_recipes,
+                           shopping_list=shopping_list,
+                           search_query='',
+                           liked_ingredients=liked,
+                           disliked_ingredients=disliked)
 
-    # Send a GET request to the Spoonacular API to get the recipe information
-    response = requests.get(url, params=params)
-    # If the API call is successful
+@app.route('/recipe/<int:recipe_id>')
+def view_recipe(recipe_id):
+    search_query = request.args.get('search_query', '')
+    url = f'https://api.spoonacular.com/recipes/{recipe_id}/information'
+    response = requests.get(url, params={'apiKey': API_KEY})
     if response.status_code == 200:
         recipe = response.json()
         return render_template('view_recipe.html', recipe=recipe, search_query=search_query)
     return "Recipe not found", 404
-@app.route('/meal-plan', methods=['GET', 'POST'])
-def meal_plan():
-    if request.method == 'POST':
-        liked_ingredients = request.form.get('liked_ingredients', '')
-        disliked_ingredients = request.form.get('disliked_ingredients', '')
-        
-        # Buscar plano alimentar com base nos ingredientes preferidos e evitados
-        plan_data, recipes_details = generate_meal_plan(liked_ingredients, disliked_ingredients)
 
-        # Criar lista de compras
-        shopping_list = create_shopping_list(recipes_details)
-
-        return render_template(
-            'meal_plan.html',
-            plan=plan_data,
-            recipes=recipes_details,
-            liked_ingredients=liked_ingredients,
-            disliked_ingredients=disliked_ingredients,
-            shopping_list=shopping_list
-        )
-
-    return render_template('meal_plan_form.html')
-
-# Run the app in debug mode if executed directly
 if __name__ == '__main__':
     app.run(debug=True)
-#lol
-#Pre abichou Downer
