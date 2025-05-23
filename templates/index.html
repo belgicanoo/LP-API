@@ -67,11 +67,20 @@
 </head>
 <body>
     <h1>Recipe App</h1>
-    <form method="POST" action="/">
-        <input type="text" name="search_query" placeholder="Search for recipes">
-        <input type="submit" value="Search">
-        <a href="/home" class="home-button">Home</a>
-    </form>
+  <form method="POST" action="/">
+    <input type="text" name="search_query" placeholder="Buscar receitas">
+    <br><br>
+    <label>Ingredientes que gosta:</label><br>
+    <input type="text" name="liked_ingredients" placeholder="Ex: tomate, frango">
+    <br><br>
+    <label>Ingredientes que não gosta:</label><br>
+    <input type="text" name="disliked_ingredients" placeholder="Ex: cebola, cogumelos">
+    <br><br>
+    <input type="submit" name="action" value="Buscar Receitas">
+    <input type="submit" name="action" value="Gerar Plano Alimentar">
+    <a href="/home" class="home-button">Home</a>
+</form>
+
 
     <!-- Check of recipes are available-->
     {% if recipes%}
