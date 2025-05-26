@@ -1,43 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <title>Recipe App</title>
-    <link rel="stylesheet" href="style.css"> 
-</head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Preferências</title></head>
 <body>
-    <h1>Recipe App</h1>
-  <form method="POST" action="/">
-    <input type="text" name="search_query" placeholder="Buscar receitas">
-    <br><br>
-    <label>Ingredientes que gosta:</label><br>
-    <input type="text" name="liked_ingredients" placeholder="Ex: tomate, frango">
-    <br><br>
-    <label>Ingredientes que não gosta:</label><br>
-    <input type="text" name="disliked_ingredients" placeholder="Ex: cebola, cogumelos">
-    <br><br>
-    <input type="submit" name="action" value="Buscar Receitas">
-    <input type="submit" name="action" value="Gerar Plano Alimentar">
-    <a href="/home" class="home-button">Home</a>
-</form>
+    <h1>Escolha os seus ingredientes</h1>
+    <form method="POST" action="/choose-recipe">
+        <label>Ingredientes que gosta:</label><br>
+        <input type="text" name="liked_ingredients"><br><br>
 
+        <label>Ingredientes que não gosta:</label><br>
+        <input type="text" name="disliked_ingredients"><br><br>
 
-    <!-- Check of recipes are available-->
-    {% if recipes%}
-    <h2>Results for "{{ search_query }}"</h2>
-    <ul>
-        {% for recipe in recipes %}
-        <li>
-            <h3 class="recipe-title">{{ recipe.title }}</h3>
-            {% if recipe.image %}
-            <img src="{{ recipe.image }}" alt="{{ recipe.title }}">
-            {% endif %}
-            <a href="{{ url_for('view_recipe', recipe_id=recipe.id, search_query=search_query) }}">View</a>
-        </li>
-        {% endfor %}
-    </ul>
-    <!-- If no recipes are found -->
-    {% else %}
-    <p>No recipes found.</p>
-    {% endif %}
+        <label>Tipo de refeição:</label><br>
+        <select name="meal_type">
+            <option value="breakfast">Pequeno Almoço</option>
+            <option value="lunch">Almoço</option>
+            <option value="dinner">Jantar</option>
+        </select><br><br>
+
+        <button type="submit">Procurar Receitas</button>
+    </form>
 </body>
 </html>

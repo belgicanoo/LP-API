@@ -1,75 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>{{ recipe.title }}</title>
-    <link rel="stylesheet" href="view_recipe.css">
+<html>
+<head><title>{{ recipe.title }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='view_recipe.css') }}">
 </head>
 <body>
-    <div class="recipe-details">
-        <h1>{{ recipe.title }}</h1>
+    <h1>{{ recipe.title }}</h1>
 
-        {% if recipe.image %}
-        <img src="{{ recipe.image }}" alt="{{ recipe.title }}">
-        {% endif %}
+    {% if recipe.image %}
+    <img src="{{ recipe.image }}" width="300">
+    {% endif %}
 
-        <h2 class="section-title">Ingredients</h2>
-        <ul class="ingredient-list">
-            {% for ingredient in recipe.extendedIngredients %}
-            <li>{{ ingredient.original }}</li>
-            {% endfor %}
-        </ul>
-
-        <h2 class="section-title">Instructions</h2>
-        <ol class="instruction-list">
-            {% for step in recipe.analyzedInstructions[0].steps %}
-            <li>{{ step.step }}</li>
-            {% endfor %}
-        </ol>
-
-        <a href="/?search_query={{ search_query }}">Back to search results</a>
-    </div>
-
-    {% if plan %}
-    <hr>
-    <h2>Plano Alimentar do Dia</h2>
+    <h2>Ingredientes</h2>
     <ul>
-        {% for meal in plan.meals %}
-            <li><strong>{{ meal.title }}</strong> — <a href="/recipe/{{ meal.id }}">Ver Receita</a></li>
+        {% for ing in shopping_list %}
+        <li>{{ ing }}</li>
         {% endfor %}
     </ul>
 
-    {% for r in recipes %}
-    <hr>
-    <div class="recipe-details">
-        <h3>{{ r.title }}</h3>
-        {% if r.image %}
-        <img src="{{ r.image }}" alt="{{ r.title }}">
-        {% endif %}
-        <h4>Ingredientes</h4>
-        <ul>
-            {% for ing in r.extendedIngredients %}
-            <li>{{ ing.original }}</li>
-            {% endfor %}
-        </ul>
-
-        <h4>Instruções</h4>
+    <h2>Instruções</h2>
+    {% if recipe.instructions %}
+        <p>{{ recipe.instructions }}</p>
+    {% elif recipe.analyzedInstructions %}
         <ol>
-            {% for step in r.analyzedInstructions[0].steps %}
+        {% for step in recipe.analyzedInstructions[0].steps %}
             <li>{{ step.step }}</li>
-            {% endfor %}
+        {% endfor %}
         </ol>
-    </div>
-    {% endfor %}
-
-    <hr>
-    <div class="recipe-details">
-        <h2>Lista de Compras</h2>
-        <ul>
-            {% for item, amounts in shopping_list.items() %}
-                <li><strong>{{ item }}</strong>: {{ ', '.join(amounts) }}</li>
-            {% endfor %}
-        </ul>
-    </div>
     {% endif %}
+
+    <h2>Comentários</h2>
+    <ul>
+        {% for c in comments %}
+        <li>{{ c.text }}</li>
+        {% else %}
+        <li>Sem comentários ainda.</li>
+        {% endfor %}
+    </ul>
+
+    <form method="POST" action="/comment/{{ recipe.id }}">
+        <textarea name="comment" rows="3" cols="50" placeholder="Escreve um comentário..."></textarea><br>
+        <button type="submit">Adicionar Comentário</button>
+    </form>
 </body>
 </html>

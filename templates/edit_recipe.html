@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head><title>Editar Receita</title></head>
+<body>
+    <h1>Editar Receita</h1>
+    <form method="POST">
+        <input type="hidden" name="title" value="{{ recipe.title }}">
+        <input type="hidden" name="image" value="{{ recipe.image }}">
+        <label>Ingredientes (separados por vírgula):</label><br>
+        <textarea name="ingredients" rows="5" cols="60">{{ ingredients | join(', ') }}</textarea><br><br>
+
+        <label>Instruções (separadas por ponto final):</label><br>
+        <textarea name="instructions" rows="5" cols="60">{{ instructions | join('. ') }}</textarea><br><br>
+
+        <button type="submit">Confirmar e Ver Receita</button>
+    </form>
+</body>
+</html>

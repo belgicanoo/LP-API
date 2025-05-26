@@ -1,10 +1,16 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import requests
 from urllib.parse import unquote
+from pymongo import MongoClient
 
 app = Flask(__name__)
 
 API_KEY = '102e440d05e14a75b434d6de15670598'
+
+# Conexão MongoDB local (assumindo rodando no localhost:27017)
+client = MongoClient('mongodb://localhost:27017/')
+db = client.recipe_app
+comments_col = db.comments
 
 @app.route('/home', methods=['GET'])
 def home():
@@ -86,15 +92,54 @@ def meal_plan_route():
                            liked_ingredients=liked,
                            disliked_ingredients=disliked)
 
-@app.route('/recipe/<int:recipe_id>')
+@app.route('/recipe/<int:recipe_id>', methods=['GET', 'POST'])
 def view_recipe(recipe_id):
     search_query = request.args.get('search_query', '')
+    
+    # Carregar receita original da API
     url = f'https://api.spoonacular.com/recipes/{recipe_id}/information'
     response = requests.get(url, params={'apiKey': API_KEY})
-    if response.status_code == 200:
-        recipe = response.json()
-        return render_template('view_recipe.html', recipe=recipe, search_query=search_query)
-    return "Recipe not found", 404
+    if response.status_code != 200:
+        return "Recipe not found", 404
+    recipe = response.json()
 
+    # Comentários armazenados na base
+    comments = list(comments_col.find({'recipe_id': recipe_id}))
+    
+    # Processar POST para adicionar comentários ou editar ingredientes
+    if request.method == 'POST':
+        if 'comment' in request.form:
+            comment_text = request.form['comment'].strip()
+            if comment_text:
+                comments_col.insert_one({
+                    'recipe_id': recipe_id,
+                    'comment': comment_text
+                })
+                return redirect(url_for('view_recipe', recipe_id=recipe_id, search_query=search_query))
+
+        elif 'update_ingredients' in request.form:
+            # Receber ingredientes modificados via textarea JSON ou outra forma
+            import json
+            modified_ingredients_str = request.form.get('modified_ingredients', '')
+            try:
+                modified_ingredients = json.loads(modified_ingredients_str)
+                # Substituir lista original por modificada (no lado do template)
+                recipe['extendedIngredients'] = modified_ingredients
+            except Exception as e:
+                return f"Erro ao modificar ingredientes: {str(e)}", 400
+
+    # Gerar lista de compras baseada nos ingredientes atuais da receita
+    shopping_list = {}
+    for ing in recipe.get('extendedIngredients', []):
+        name = ing.get('name', '')
+        amount = f"{ing.get('amount', '')} {ing.get('unit', '')}".strip()
+        shopping_list.setdefault(name, []).append(amount)
+
+    return render_template('view_recipe_edit.html',
+                           recipe=recipe,
+                           search_query=search_query,
+                           comments=comments,
+                           shopping_list=shopping_list)
+    
 if __name__ == '__main__':
     app.run(debug=True)
