@@ -1,45 +1,38 @@
 <!DOCTYPE html>
-<html>
-<head><title>{{ recipe.title }}</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='view_recipe.css') }}">
+<html lang="en">
+<head>
+    <title>{{ recipe.title }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='view_recipe.css') }}">
 </head>
 <body>
-    <h1>{{ recipe.title }}</h1>
+    <div class="recipe-details">
+        <h1>{{ recipe.title }}</h1>
 
-    {% if recipe.image %}
-    <img src="{{ recipe.image }}" width="300">
-    {% endif %}
+        <!-- Display the recipe image if available -->
+        {% if recipe.image %}
+        <img src="{{ recipe.image }}" alt="{{ recipe.title }}">
+        {% endif %}
 
-    <h2>Ingredientes</h2>
-    <ul>
-        {% for ing in shopping_list %}
-        <li>{{ ing }}</li>
-        {% endfor %}
-    </ul>
+        <!-- Ingredients section -->
+        <h2 class="section-title">Ingredients</h2>
+        <!-- Create an unordered list for displaying the ingredients -->
+        <ul class="ingredient-list">
+            <!-- Loop through each ingredient in the recipe's extendedIngredients -->
+            {% for ingredient in recipe.extendedIngredients %}
+            <li>{{ ingredient.original }}</li>
+            {% endfor %}
+        </ul>
 
-    <h2>Instruções</h2>
-    {% if recipe.instructions %}
-        <p>{{ recipe.instructions }}</p>
-    {% elif recipe.analyzedInstructions %}
-        <ol>
-        {% for step in recipe.analyzedInstructions[0].steps %}
+        <!-- Instructions Section -->
+        <h2 class="section-title">Instructions</h2>
+        <ol class="instruction-list">
+            {% for step in recipe.analyzedInstructions[0].steps %}
             <li>{{ step.step }}</li>
-        {% endfor %}
+            {% endfor %}
         </ol>
-    {% endif %}
-
-    <h2>Comentários</h2>
-    <ul>
-        {% for c in comments %}
-        <li>{{ c.text }}</li>
-        {% else %}
-        <li>Sem comentários ainda.</li>
-        {% endfor %}
-    </ul>
-
-    <form method="POST" action="/comment/{{ recipe.id }}">
-        <textarea name="comment" rows="3" cols="50" placeholder="Escreve um comentário..."></textarea><br>
-        <button type="submit">Adicionar Comentário</button>
-    </form>
+        <a href="/?search_query={{ search_query }}">Back to search results</a>
+    </div>
 </body>
 </html>
