@@ -3,3 +3,12 @@ ingredients_url = 'https://api.spoonacular.com/recipes/findByIngredients'
 recipe_info_url = 'https://api.spoonacular.com/recipes/{}/information'
 api_key = 'cc45df8db647453f8c0d2f5e7df3667f'
 102e440d05e14a75b434d6de15670598
+
+
+mongoDB
+username: ivocunha077
+password: oruADSRdd7VLuKCl
+
+python -m pip install "pymongo[srv]"
+
+mongodb+srv://ivocunha077:<db_password>@cluster0.r77leoh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
