@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <title>Comentários da Receita {{ receita_id }}</title>
+</head>
+<body>
+    <h1>Comentários da Receita {{ receita_id }}</h1>
+
+    <a href="{{ url_for('ver_ingredientes', receita_id=receita_id) }}">
+        <button>Voltar aos Ingredientes</button>
+    </a>
+
+    <ul>
+        {% if comentarios %}
+            {% for comentario in comentarios %}
+                <li>{{ comentario }}</li>
+            {% endfor %}
+        {% else %}
+            <li>Sem comentários ainda.</li>
+        {% endif %}
+    </ul>
+
+    <h2>Adicionar Comentário</h2>
+    <form method="post" action="{{ url_for('adicionar_comentario', receita_id=receita_id) }}">
+        <textarea name="comentario" rows="4" cols="50" placeholder="Escreve o teu comentário aqui..." required></textarea><br />
+        <button type="submit">Adicionar</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <title>Ingredientes da Receita</title>
+</head>
+<body>
+    <h1>Ingredientes</h1>
+    <ul>
+        {% for ingrediente in ingredientes %}
+            <li>{{ ingrediente }}</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('mostrar_semana') }}">
+        <button>Voltar ao Plano da Semana</button>
+    </a>
+
+    <a href="{{ url_for('ver_comentarios', receita_id=receita_id) }}">
+        <button>Ver Comentários</button>
+    </a>
+</body>
+</html>

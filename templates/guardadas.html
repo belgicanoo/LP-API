@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <title>Receitas Guardadas</title>
+</head>
+<body>
+    <h1>Receitas Guardadas</h1>
+    <a href="{{ url_for('home') }}">
+        <button>Voltar à Busca</button>
+    </a>
+    <a href="{{ url_for('mostrar_semana') }}">
+        <button>Ver Plano da Semana</button>
+    </a>
+    <ul style="list-style:none; padding: 0;">
+    {% for receita in receitas %}
+        <li style="margin-bottom:40px;">
+            <h3>{{ receita.title }}</h3>
+            <img src="{{ receita.image }}" alt="{{ receita.title }}" style="width:200px; height:auto;"/><br/>
+
+            <form method="POST" action="{{ url_for('remover', receita_id=receita.id) }}" style="margin-top:5px; display:inline-block;">
+                <button type="submit" onclick="return confirm('Tem certeza que quer remover esta receita?')">Remover Receita</button>
+            </form>
+
+            <form method="POST" action="{{ url_for('atribuir_dia') }}" style="margin-top:5px; display:inline-block; margin-left:10px;">
+                <input type="hidden" name="id" value="{{ receita.id }}" />
+                <input type="hidden" name="title" value="{{ receita.title }}" />
+                <input type="hidden" name="image" value="{{ receita.image }}" />
+                <label for="dia_{{ receita.id }}">Escolher dia da semana:</label>
+                <select name="dia" id="dia_{{ receita.id }}" required>
+                    <option value="" disabled selected>Seleciona um dia</option>
+                    {% for dia in ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"] %}
+                        <option value="{{ dia }}">{{ dia }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Associar</button>
+            </form>
+        </li>
+    {% else %}
+        <p>Nenhuma receita guardada ainda.</p>
+    {% endfor %}
+    </ul>
+</body>
+</html>

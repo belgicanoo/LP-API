@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <title>Receitas da Semana</title>
+</head>
+<body>
+    <h1>Receitas Escolhidas para a Semana</h1>
+    <a href="{{ url_for('home') }}">
+        <button>Voltar à Busca</button>
+    </a>
+
+    {% if pode_gerar %}
+    <a href="{{ url_for('lista_compras') }}">
+        <button style="margin:15px 0;">GERAR LISTA DE COMPRAS</button>
+    </a>
+    {% else %}
+    <p style="color:red;">Deve escolher uma receita para cada dia da semana para gerar a lista de compras.</p>
+    {% endif %}
+
+    <ul style="list-style:none; padding: 0;">
+    {% for dia in dias %}
+        <li style="margin-bottom:30px;">
+            <h2>{{ dia }}</h2>
+            {% if semana.get(dia) %}
+                <h3>{{ semana[dia].info.title }}</h3>
+                <img src="{{ semana[dia].info.image }}" alt="{{ semana[dia].info.title }}" style="width:200px; height:auto;"/>
+                <br/>
+                <a href="{{ url_for('ver_ingredientes', receita_id=semana[dia].info.id) }}">
+                    <button>Ver Ingredientes</button>
+
+
+                </a>
+                <form method="POST" action="{{ url_for('remover_dia', dia=dia) }}" style="margin-top:10px;">
+                    <button type="submit" onclick="return confirm('Remover receita deste dia?')">Remover Receita</button>
+                </form>
+            {% else %}
+                <p>Nenhuma receita escolhida.</p>
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+</body>
+</html>

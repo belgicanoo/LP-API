@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <title>Lista de Compras</title>
+</head>
+<body>
+    <h1>Lista de Compras Consolidada</h1>
+    <ul>
+        {% for ingrediente in ingredientes %}
+            <li>{{ ingrediente }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('mostrar_semana') }}">
+        <button>Voltar ao Plano da Semana</button>
+    </a>
+</body>
+</html>
