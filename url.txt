@@ -3,6 +3,8 @@ ingredients_url = 'https://api.spoonacular.com/recipes/findByIngredients'
 recipe_info_url = 'https://api.spoonacular.com/recipes/{}/information'
 api_key = 'cc45df8db647453f8c0d2f5e7df3667f'
 102e440d05e14a75b434d6de15670598
+3e66a5a8486942dd9aa1deee46677f82
+
 
 
 mongoDB
