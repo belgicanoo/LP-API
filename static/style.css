@@ -1,0 +1,44 @@
+body {
+    background-color: rgb(228, 228, 228);
+}
+
+h1 {
+    color: rgb(59, 100, 131);
+    text-align: center;
+}
+.form-busca{
+    justify-content: center;
+    margin: auto;
+    height: auto;
+    text-align: center;
+}
+.btn{
+    background-color: rgb(59, 100, 131);
+    color: white;
+    border-radius: 5px;
+    padding: 10px 70px;
+    border: none;
+    cursor: pointer;
+}
+.btn:hover {
+    background-color: rgb(45, 80, 100);
+}
+.link-guardadas {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    margin-right: 7px;
+    text-decoration: none;
+}
+.btn-vrg{
+    background-color: rgb(59, 100, 131);
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+}
+.btn-vrg:hover {
+    background-color: rgb(45, 80, 100);
+}

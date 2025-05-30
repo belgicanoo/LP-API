@@ -5,7 +5,7 @@ import os
 
 app = Flask(__name__)
 
-API_KEY = "3e66a5a8486942dd9aa1deee46677f82"
+API_KEY = "102e440d05e14a75b434d6de15670598"
 BASE_URL = "https://api.spoonacular.com"
 GUARDADOS_FILE = "receitas_guardadas.json"
 SEMANA_FILE = "receitas_semana.json"
@@ -50,13 +50,25 @@ def guardar_receita_semana(dia, receita):
 
 def buscar_ingredientes_receita(receita_id):
     url = f"{BASE_URL}/recipes/{receita_id}/information"
-    params = {"apiKey": API_KEY, "includeNutrition": False}
+    params = {"apiKey": API_KEY, "includeNutrition": True}
     response = requests.get(url, params=params)
     if response.status_code != 200:
         return None
     data = response.json()
     ingredientes = [ing.get("original") for ing in data.get("extendedIngredients", [])]
-    return ingredientes
+
+    # Extrair as calorias
+    calorias = None
+    for nutriente in data.get("nutrition", {}).get("nutrients", []):
+        if nutriente.get("name") == "Calories":
+            calorias = nutriente.get("amount")
+            break
+
+    return {
+        "ingredientes": ingredientes,
+        "calorias": calorias
+    }
+
 
 def carregar_dados_semana():
     if not os.path.exists(SEMANA_FILE):
@@ -170,10 +182,14 @@ def remover_dia(dia):
 
 @app.route('/ingredientes/<int:receita_id>')
 def ver_ingredientes(receita_id):
-    ingredientes = buscar_ingredientes_receita(receita_id)
-    if ingredientes is None:
+    dados = buscar_ingredientes_receita(receita_id)
+    if dados is None:
         abort(404)
-    return render_template('ingredientes.html', ingredientes=ingredientes, receita_id=receita_id)
+    return render_template('ingredientes.html',
+                           ingredientes=dados["ingredientes"],
+                           calorias=dados["calorias"],
+                           receita_id=receita_id)
+
 
 @app.route('/lista_compras')
 def lista_compras():
@@ -183,9 +199,9 @@ def lista_compras():
 
     todos_ingredientes = set()
     for receita in semana.values():
-        ingredientes = buscar_ingredientes_receita(receita["id"])
-        if ingredientes:
-            todos_ingredientes.update(ingredientes)
+        dados = buscar_ingredientes_receita(receita["id"])
+        if dados and dados.get("ingredientes"):
+            todos_ingredientes.update(dados["ingredientes"])
 
     lista_ordenada = sorted(todos_ingredientes)
     return render_template('lista_compras.html', ingredientes=lista_ordenada)

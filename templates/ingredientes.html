@@ -19,5 +19,9 @@
     <a href="{{ url_for('ver_comentarios', receita_id=receita_id) }}">
         <button>Ver Comentários</button>
     </a>
+    {% if calorias %}
+    <p><strong>Calorias da Receita:</strong> {{ calorias }} kcal</p>
+{% endif %}
+
 </body>
 </html>

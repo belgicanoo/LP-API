@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <title>Busca de Receitas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <h1>Busca de Receitas por Ingredientes</h1>
-    <form method="POST" action="/buscar">
-        <label>Ingredientes desejados (separados por vírgula):</label><br/>
+    <form method="POST" action="/buscar" class="form-busca">
+        <label>Ingredientes desejados (separados por vírgula):</label><br>
         <input type="text" name="ingredientes_desejados" placeholder="Ex: arroz, frango" 
             value="{{ ingredientes_desejados | default('') }}" /><br/><br/>
 
@@ -15,12 +16,12 @@
         <input type="text" name="ingredientes_nao_desejados" placeholder="Ex: cebola, pimenta" 
             value="{{ ingredientes_nao_desejados | default('') }}" /><br/><br/>
 
-        <button type="submit">Buscar</button>
+        <button type="submit" class="btn">Buscar</button>
     </form>
 
     <br>
-    <a href="{{ url_for('ver_guardadas') }}">
-        <button>Ver Receitas Guardadas</button>
+    <a href="{{ url_for('ver_guardadas') }}" class="link-guardadas">
+        <button class="btn-vrg">Ver Receitas Guardadas</button>
     </a>
 
     {% if error %}
