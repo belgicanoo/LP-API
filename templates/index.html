@@ -2,26 +2,26 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8" />
-    <title>Busca de Receitas</title>
+    <title>Search for recipes</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Busca de Receitas por Ingredientes</h1>
+    <h1>Search for recipes by ingredients</h1>
     <form method="POST" action="/buscar" class="form-busca">
-        <label>Ingredientes desejados (separados por vírgula):</label><br>
-        <input type="text" name="ingredientes_desejados" placeholder="Ex: arroz, frango" 
-            value="{{ ingredientes_desejados | default('') }}" /><br/><br/>
+        <label class="label-ingredientes">Desired ingredients:</label><br>
+        <input type="text" name="ingredientes_desejados" placeholder="Ex: rice, chicken" 
+            value="{{ ingredientes_desejados | default('') }}" class="input-ingredientes"/><br/><br/>
 
-        <label>Ingredientes NÃO desejados (separados por vírgula):</label><br/>
-        <input type="text" name="ingredientes_nao_desejados" placeholder="Ex: cebola, pimenta" 
-            value="{{ ingredientes_nao_desejados | default('') }}" /><br/><br/>
+        <label class="label-ingredientes">Undesired ingredients:</label><br/>
+        <input type="text" name="ingredientes_nao_desejados" placeholder="Ex: onion, pepper" 
+            value="{{ ingredientes_nao_desejados | default('') }}" class="input-ingredientes"/><br/><br/>
 
-        <button type="submit" class="btn">Buscar</button>
+        <button type="submit" class="btn">Search</button>
     </form>
 
     <br>
     <a href="{{ url_for('ver_guardadas') }}" class="link-guardadas">
-        <button class="btn-vrg">Ver Receitas Guardadas</button>
+        <button class="btn-vrg">View Saved Recipes</button>
     </a>
 
     {% if error %}
@@ -29,7 +29,7 @@
     {% endif %}
 
     {% if receitas %}
-        <h2>Receitas encontradas para: {{ ingredientes_desejados }}</h2>
+        <h2>Recipes found for: {{ ingredientes_desejados }}</h2>
         <ul style="list-style:none; padding: 0;">
         {% for receita in receitas %}
             <li style="margin-bottom:20px;">
@@ -39,7 +39,7 @@
                     <input type="hidden" name="id" value="{{ receita.id }}" />
                     <input type="hidden" name="title" value="{{ receita.title }}" />
                     <input type="hidden" name="image" value="{{ receita.image }}" />
-                    <button type="submit">Guardar Receita</button>
+                    <button type="submit">Save Recipe</button>
                 </form>
             </li>
         {% endfor %}

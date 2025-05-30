@@ -5,7 +5,7 @@ import os
 
 app = Flask(__name__)
 
-API_KEY = "102e440d05e14a75b434d6de15670598"
+API_KEY = ""
 BASE_URL = "https://api.spoonacular.com"
 GUARDADOS_FILE = "receitas_guardadas.json"
 SEMANA_FILE = "receitas_semana.json"
